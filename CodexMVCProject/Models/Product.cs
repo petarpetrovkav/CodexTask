@@ -7,6 +7,6 @@ public class Product
     public string Description { get; set; } = null!;
     public int Quantity { get; set; } 
     public int Amount { get; set; }
-    public DateTime Date { get; set; }
+    public DateTime Date { get; set; } = DateTime.Now;
 
 }
