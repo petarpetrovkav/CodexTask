@@ -1,20 +1,20 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
 }
 
 .form-holder {
@@ -25,19 +25,13 @@ body {
     text-align: center;
 }
 
-.form-holder .form-content {
-    position: relative;
-    text-align: center;
-    display: -webkit-box;
-    display: -moz-box;
-    display: -ms-flexbox;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-justify-content: center;
-    justify-content: center;
-    -webkit-align-items: center;
-    align-items: center;
-}
+    .form-holder .form-content {
+        position: relative;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
 .form-content .form-items {
     border: 1px solid #6C757D;
@@ -45,11 +39,8 @@ body {
     display: inline-block;
     width: 100%;
     min-width: 540px;
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
     border-radius: 10px;
     text-align: left;
-    -webkit-transition: all 0.4s ease;
     transition: all 0.4s ease;
 }
 
@@ -61,9 +52,9 @@ body {
     margin-bottom: 5px;
 }
 
-.form-content h3.form-title {
-    margin-bottom: 30px;
-}
+    .form-content h3.form-title {
+        margin-bottom: 30px;
+    }
 
 .form-content input[type=text] {
     width: 90%;
@@ -76,7 +67,6 @@ body {
     font-size: 15px;
     font-weight: 300;
     color: #8D8D8D;
-    -webkit-transition: all 0.3s ease;
     transition: all 0.3s ease;
     margin-top: 10px;
 }
@@ -88,19 +78,24 @@ body {
     box-shadow: none;
 }
 
-.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
-    background-color: #495056;
-    outline: none !important;
-    border: none !important;
-    box-shadow: none;
+    .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+        background-color: #495056;
+        outline: none !important;
+        border: none !important;
+        box-shadow: none;
+    }
+
+.notification {
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    color: white;
 }
 
-#valid-feedback {
-    color: limegreen;
-    display: none;
-}
+    .notification.success {
+        background-color: green;
+    }
 
-#invalid-feedback {
-    color: red;
-    display: none;
-}
+    .notification.error {
+        background-color: red;
+    }

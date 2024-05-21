@@ -1,63 +1,167 @@
 ﻿@{
     ViewData["Title"] = "Product Page";
 }
+@model IEnumerable<CodexMVCProject.Models.Product>
 
-<div class="container">
-    <div class="form-body">
-        <div class="row">
-            <div class="form-holder">
-                <div class="form-content">
-                    <div class="form-items">
-                        <h3>Внеси нов продукт</h3>
-                        <form id="productform" class="requires-validation" novalidate>
-                            <div class="col-md-12">
-                                <input class="form-control" id="txtTitle" type="text" name="title" placeholder="Назив" required>
-                            </div>
-                            <div class="col-md-12">
-                                <input class="form-control" id="txtDescription" type="text" name="description" placeholder="Опис" required>
-                            </div>
-                            <div class="col-md-12">
-                                <input class="form-control" id="txtQuantity" type="text" name="quantity" placeholder="Количина" required>
-                            </div>
-                            <div class="col-md-12">
-                                <input class="form-control" id="txtAmount" type="text" name="amount" placeholder="Цена" required>
-                            </div>
-                            <div class="form-button col-md-3 mt-3">
-                                <button id="btnsubmit" type="button" class="btn btn-primary">Сними</button>
-                            </div>
-                            @* <div class="col-md-9">
-                                <div class="valid-feedback mv-up">asdafsd</div>
-                            </div> *@
-                         </form>
-                        <p class="mt-3" id="valid-feedback">Продуктот е додаден успешно!!!</p>
-                        <p class="mt-3" id="invalid-feedback">Има грешка во запишувањето!!!</p>
-                       @*  <h2>Додади нов продукт</h2>
-                        <form id="productform">
-                            <table>
-                                <tr>
-                                    <td>Назив</td>
-                                    <td><input id="txtTitle" name="title" type="text" /></td>
-                                </tr>
-                                <tr>
-                                    <td>Опис</td>
-                                    <td><input id="txtDescription" name="description" type="text" /></td>
-                                </tr>
-                                <tr>
-                                    <td>Количина</td>
-                                    <td><input id="txtQuantity" name="quantity" type="text" /></td>
-                                </tr>
-                                <tr>
-                                    <td>Цена</td>
-                                    <td><input id="txtAmount" name="amount" type="text" /></td>
-                                </tr>
-                            </table>
-                            <input id="btnsubmit" type="button" value="Сними" />
-                        </form> *@
+<div class="container-fluid">
+    <div class="row">
+        <!-- Form Container -->
+        <div class="col-lg-6">
+            <div class="form-body">
+                <div class="form-holder">
+                    <div class="form-content">
+                        <div class="form-items">
+                            <h3>Внеси нов продукт</h3>
+                            <form id="productform">
+                                <div class="col-md-12">
+                                    <input class="form-control" id="txtTitle" type="text" name="title" placeholder="Назив" required>
+                                </div>
+                                <div class="col-md-12">
+                                    <input class="form-control" id="txtDescription" type="text" name="description" placeholder="Опис" required>
+                                </div>
+                                <div class="col-md-12">
+                                    <input class="form-control" id="txtQuantity" type="text" name="quantity" placeholder="Количина" required>
+                                </div>
+                                <div class="col-md-12">
+                                    <input class="form-control" id="txtAmount" type="text" name="amount" placeholder="Цена" required>
+                                </div>
+                                <div class="form-button col-md-3 mt-3">
+                                    <button id="btnsubmit" type="button" class="btn btn-primary">Сними</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- Grid Container -->
+        <div class="col-lg-6">
+            <div id="grid-container">
+                @Html.Partial("_GridProduct")
+            </div>
+        </div>
     </div>
 </div>
+<div id="notification-container" style="position: fixed; top: 20px; right: 20px; z-index: 1000;"></div>
 
 
+@section Scripts {
+    <script>
+        var allData = [];
+
+        function loadDataFromServer() {
+            return $.ajax({
+                type: "GET",
+                url: '@Url.Action("Products", "Product")'
+            }).done(function (data) {
+                allData = data;
+                $("#jsGrid").jsGrid("option", "data", data);
+                $("#jsGrid").jsGrid("loadData");
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                showNotification('Неуспешно читање', 'error');
+            });
+        }
+
+        function showNotification(message, type) {
+            var notification = $('<div/>')
+                .addClass('notification ' + type)
+                .text(message)
+                .appendTo('#notification-container');
+
+            setTimeout(function () {
+                notification.fadeOut(function () {
+                    notification.remove();
+                });
+            }, 3000);
+        }
+
+        $("#jsGrid").jsGrid({
+            width: "100%",
+            height: "400px",
+
+            editing: true,
+            sorting: true,
+            paging: true,
+            filtering: true,
+
+            data: [],
+
+            controller: {
+                loadData: function (filter) {
+                    return $.grep(allData, function (item) {
+                        return (!filter.id || item.id === filter.id)
+                            && (!filter.title || item.title.indexOf(filter.title) > -1)
+                            && (!filter.description || item.description.indexOf(filter.description) > -1)
+                            && (!filter.quantity || item.quantity === filter.quantity)
+                            && (!filter.amount || item.amount === filter.amount);
+                    });
+                },
+                updateItem: function (item) {
+                    return $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("Edit", "Product")',
+                        data: item
+                    }).done(function (response) {
+                        var index = allData.findIndex(x => x.id === item.id);
+                        allData[index] = item;
+                        $("#jsGrid").jsGrid("loadData");
+                        showNotification('Успешно извршена промена.', 'success');
+                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                        showNotification('Неуспешна промена: ' + textStatus, 'error');
+                    });
+                },
+                deleteItem: function (item) {
+                    return $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("Delete", "Product")',
+                        data: { id: item.id }
+                    }).done(function (response) {
+                        //allData = allData.filter(x => x.id !== item.id);
+                        loadDataFromServer();
+                        showNotification('Избришан е запис', 'success');
+                    }).fail(function (jqXHR, textStatus, errorThrown) {
+                        showNotification('Неуспешно бришење: ' + textStatus, 'error');
+                    });
+                }
+            },
+
+            fields: [
+                { name: "id", type: "number", width: 1, editing: false, visible: false, title: "ID" },
+                { name: "title", type: "text", width: 200, title: "Назив" },
+                { name: "description", type: "text", width: 250, title: "Опис" },
+                { name: "quantity", type: "number", width: 100, title: "Количина" },
+                { name: "amount", type: "number", width: 100, title: "Цена" },
+                { name: "date", type: "text", width: 200, editing: false, filtering: false, title: "Дата" },
+                { type: "control", title: "Контрола" }
+            ]
+        });
+
+        loadDataFromServer();
+
+        $(function () {
+            $("#btnsubmit").click(function (e) {
+                $.ajax({
+                    url: '@Url.Action("AddProduct", "Product")',
+                    type: "POST",
+                    dataType: 'json',
+                    contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                    data: $("#productform").serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            loadDataFromServer();
+                            showNotification('Успешно запишување на продукт!!!', 'success');
+                            $('#productform')[0].reset();
+                        } else {
+                            showNotification('Неуспено запишување на продукт!!!', 'error');
+                        }
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        showNotification('Неуспено запишување на продукт!!! ' + textStatus, 'error');
+                    }
+                });
+            });
+        });
+
+    </script> 
+   
+}
